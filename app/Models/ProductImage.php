@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductImage extends Model
 {
-    //
+    public $timestamps = true;
+
+    public function products()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

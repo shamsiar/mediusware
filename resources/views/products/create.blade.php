@@ -5,6 +5,7 @@
         <h1 class="h3 mb-0 text-gray-800">Create Product</h1>
     </div>
     <div id="app">
-        <create-product :variants="{{ $variants }}">Loading</create-product>
+        <create-product :variants="{{ $variants }}" @if (!empty($pro)) :pro="{{ $pro }}" @endif>Loading</create-product>
+        
     </div>
 @endsection

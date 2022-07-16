@@ -2012,6 +2012,89 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2024,13 +2107,18 @@ __webpack_require__.r(__webpack_exports__);
     variants: {
       type: Array,
       required: true
+    },
+    pro: {
+      required: false
     }
   },
   data: function data() {
     return {
-      product_name: '',
-      product_sku: '',
-      description: '',
+      message: "",
+      product_id: "",
+      product_name: "",
+      product_sku: "",
+      description: "",
       images: [],
       product_variant: [{
         option: this.variants[0].id,
@@ -2038,16 +2126,22 @@ __webpack_require__.r(__webpack_exports__);
       }],
       product_variant_prices: [],
       dropzoneOptions: {
-        url: 'https://httpbin.org/post',
-        thumbnailWidth: 150,
-        maxFilesize: 0.5,
-        headers: {
-          "My-Awesome-Header": "header value"
-        }
-      }
+        autoProcessQueue: false,
+        thumbnailWidth: 200,
+        addRemoveLinks: true,
+        url: "#"
+      },
+      editing: false,
+      success: false
     };
   },
   methods: {
+    resetForm: function resetForm() {
+      this.product_name = "", this.product_sku = "", this.description = "", this.images = [], this.$refs.myVueDropzone.dropzone.removeAllFiles(true), this.product_variant = [{
+        option: this.variants[0].id,
+        tags: []
+      }], this.product_variant_prices = [];
+    },
     // it will push a new object into product variant
     newVariant: function newVariant() {
       var all_variants = this.variants.map(function (el) {
@@ -2086,7 +2180,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     // combination algorithm
     getCombn: function getCombn(arr, pre) {
-      pre = pre || '';
+      pre = pre || "";
 
       if (!arr.length) {
         return pre;
@@ -2094,30 +2188,59 @@ __webpack_require__.r(__webpack_exports__);
 
       var self = this;
       var ans = arr[0].reduce(function (ans, value) {
-        return ans.concat(self.getCombn(arr.slice(1), pre + value + '/'));
+        return ans.concat(self.getCombn(arr.slice(1), pre + value + "/"));
       }, []);
       return ans;
     },
     // store product into database
     saveProduct: function saveProduct() {
+      var _this2 = this;
+
       var product = {
+        id: this.product_id,
         title: this.product_name,
         sku: this.product_sku,
         description: this.description,
-        product_image: this.images,
+        product_image: this.$refs.myVueDropzone.dropzone.files,
         product_variant: this.product_variant,
         product_variant_prices: this.product_variant_prices
       };
-      axios.post('/product', product).then(function (response) {
+      console.log(product);
+      axios.post("/product", product).then(function (response) {
         console.log(response.data);
+
+        if (response.data.status == "success") {
+          _this2.success = true;
+          _this2.message = response.data.message;
+
+          _this2.resetForm();
+        }
       })["catch"](function (error) {
         console.log(error);
-      });
-      console.log(product);
+      }); // console.log(product);
     }
   },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    var _this3 = this;
+
+    if (this.pro) {
+      this.product_id = this.pro.id;
+      this.product_name = this.pro.title;
+      this.product_sku = this.pro.sku;
+      this.description = this.pro.description;
+      this.product_variant = [];
+      Object.keys(this.pro.product_variants).forEach(function (key) {
+        _this3.product_variant.push({
+          option: key,
+          tags: _this3.pro.product_variants[key]
+        });
+      });
+      this.product_variant_prices = this.pro.pro_prices; // this.checkVariant();
+      // console.log(this.product_variant);
+
+      this.editing = true;
+    } // console.log(this.pro);
+
   }
 });
 
@@ -50473,6 +50596,22 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("section", [
+    _c(
+      "div",
+      {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.success,
+            expression: "success"
+          }
+        ],
+        staticClass: "alert alert-success"
+      },
+      [_vm._v(_vm._s(_vm.message))]
+    ),
+    _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-md-6" }, [
         _c("div", { staticClass: "card shadow mb-4" }, [
@@ -50516,7 +50655,7 @@ var render = function() {
                   }
                 ],
                 staticClass: "form-control",
-                attrs: { type: "text", placeholder: "Product Name" },
+                attrs: { type: "text", placeholder: "Product SKU" },
                 domProps: { value: _vm.product_sku },
                 on: {
                   input: function($event) {
@@ -50625,9 +50764,9 @@ var render = function() {
                           { domProps: { value: variant.id } },
                           [
                             _vm._v(
-                              "\n                                        " +
+                              "\n                                            " +
                                 _vm._s(variant.title) +
-                                "\n                                    "
+                                "\n                                        "
                             )
                           ]
                         )
@@ -50688,7 +50827,11 @@ var render = function() {
                     staticClass: "btn btn-primary",
                     on: { click: _vm.newVariant }
                   },
-                  [_vm._v("Add another option")]
+                  [
+                    _vm._v(
+                      "\n                            Add another option\n                        "
+                    )
+                  ]
                 )
               ])
             : _vm._e(),
@@ -50715,7 +50858,8 @@ var render = function() {
                               name: "model",
                               rawName: "v-model",
                               value: variant_price.price,
-                              expression: "variant_price.price"
+                              expression:
+                                "\n                                                    variant_price.price\n                                                "
                             }
                           ],
                           staticClass: "form-control",
@@ -50743,7 +50887,8 @@ var render = function() {
                               name: "model",
                               rawName: "v-model",
                               value: variant_price.stock,
-                              expression: "variant_price.stock"
+                              expression:
+                                "\n                                                    variant_price.stock\n                                                "
                             }
                           ],
                           staticClass: "form-control",
@@ -50781,13 +50926,13 @@ var render = function() {
         attrs: { type: "submit" },
         on: { click: _vm.saveProduct }
       },
-      [_vm._v("Save")]
+      [_vm._v("\n            Save\n        ")]
     ),
     _vm._v(" "),
     _c(
       "button",
       { staticClass: "btn btn-secondary btn-lg", attrs: { type: "button" } },
-      [_vm._v("Cancel")]
+      [_vm._v("\n            Cancel\n        ")]
     )
   ])
 }
@@ -50800,11 +50945,13 @@ var staticRenderFns = [
       "div",
       {
         staticClass:
-          "card-header py-3 d-flex flex-row align-items-center justify-content-between"
+          "card-header py-3 d-flex flex-row align-items-center justify-content-bimagesetween"
       },
       [
         _c("h6", { staticClass: "m-0 font-weight-bold text-primary" }, [
-          _vm._v("Media")
+          _vm._v(
+            "\n                            Media\n                        "
+          )
         ])
       ]
     )
@@ -50821,7 +50968,9 @@ var staticRenderFns = [
       },
       [
         _c("h6", { staticClass: "m-0 font-weight-bold text-primary" }, [
-          _vm._v("Variants")
+          _vm._v(
+            "\n                            Variants\n                        "
+          )
         ])
       ]
     )
